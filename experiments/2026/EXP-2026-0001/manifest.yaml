@@ -105,9 +105,9 @@ protocols:
     run_parameters:
       well_count: 10
       probe_final_concentration_nm: 1  # fixed by protocol
-      probe_stock_concentration: TBD -- blocking; needed to compute encoding-probe volume per well
-      readout_probe_identity: "YEH1 for linear-probe conditions (C1, C2); YEH2 for circular-probe conditions (C3, C4). C5/C6 assignment undetermined -- see preflight blockers."
-      readout_probe_stock_concentration: TBD -- blocking
+      probe_stock_concentration: 100  # nM, confirmed (both linear and circular encoding probes)
+      readout_probe_identity: "YEH1 for linear-probe conditions (C1, C2, C5); YEH2 for circular-probe conditions (C3, C4); none for C6"
+      readout_probe_stock_concentration: 100  # nM, confirmed (both YEH1 and YEH2)
       readout_probe_final_concentration: 5  # nM, confirmed
       readout_hybridization_volume_per_well_ul: TBD -- blocking
       readout_hybridization_duration: TBD -- blocking
@@ -141,10 +141,24 @@ calculations:
     C4, C5, C6) require the 50 uL TBE-only mock. Apply 10% overage to each
     master mix. Not yet computed in absolute reagent volumes -- straightforward
     once confirmed, held here pending manifest review.
-  hybridization_mixes: >
-    Blocked. Encoding-probe stock concentration and readout-probe identity/
-    concentration/volume are not yet supplied (see protocols.run_parameters
-    above). Cannot compute per-well hybridization-mix volumes until provided.
+  hybridization_mixes:
+    encoding_probe_mixes: >
+      Resolved. Encoding-probe stock = 100 nM, final = 1 nM, 40 uL/well
+      (protocol's general nM formula), 10% overage. Three separate master
+      mixes needed (encoding probe identity differs by condition):
+      linear mix for C1+C2 (4 wells): 1.76 uL linear probe stock, 70.4 uL
+      50% formamide, 103.84 uL TBST;
+      circular mix for C3+C4 (4 wells): 1.76 uL circular probe stock,
+      70.4 uL 50% formamide, 103.84 uL TBST;
+      mock (no-probe) mix for C5+C6 (2 wells): 0 uL probe, 35.2 uL 50%
+      formamide, 52.8 uL TBST.
+      Per-well volumes: 0.4 uL probe stock (linear/circular mixes only),
+      16 uL 50% formamide, 23.6 uL TBST (24 uL TBST in the mock mix) = 40 uL total.
+    readout_probe_mixes: >
+      Blocked. Readout-probe stock (100 nM) and final concentration (5 nM)
+      are known, but the readout-hybridization volume per well and duration
+      are not yet supplied -- cannot compute readout-mix volumes until
+      provided.
 
 execution:
   ordered_plan:
@@ -199,8 +213,7 @@ analysis:
 preflight:
   status: blocking issues unresolved
   blockers:
-    - encoding-probe stock concentration not supplied (both linear and circular probes) -- blocks encoding-probe hybridization-mix volume calculation
-    - readout-probe stock concentration and hybridization volume/duration not supplied (identity and final concentration are now set -- YEH1/YEH2 at 5 nM)
+    - readout-probe hybridization volume per well and duration not supplied -- stock (100 nM) and final (5 nM) concentrations are known, but readout-mix volumes cannot be computed without the hybridization volume
   warnings:
     - >
       C5 (no-encoder background) uses YEH1 only. YEH2's non-specific-binding
