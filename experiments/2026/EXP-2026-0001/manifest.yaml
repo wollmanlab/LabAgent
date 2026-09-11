@@ -110,7 +110,7 @@ protocols:
       readout_probe_stock_concentration: 100  # nM, confirmed (both YEH1 and YEH2)
       readout_probe_final_concentration: 5  # nM, confirmed
       readout_hybridization_volume_per_well_ul: 50  # confirmed
-      readout_hybridization_duration: TBD -- blocking
+      readout_hybridization_duration: 30 min  # confirmed
       master_mix_overage_percent: 10
       post_encoding_hybridization_wash_conditions: "2 washes x 10 min each; buffer and temperature assumed TBST at room temperature (consistent with rest of protocol), not explicitly confirmed"
       post_readout_hybridization_wash_conditions: "2 washes x 10 min each; buffer and temperature assumed TBST at room temperature, not explicitly confirmed"
@@ -155,15 +155,15 @@ calculations:
       Per-well volumes: 0.4 uL probe stock (linear/circular mixes only),
       16 uL 50% formamide, 23.6 uL TBST (24 uL TBST in the mock mix) = 40 uL total.
     readout_probe_mixes: >
-      Resolved except duration. Readout stock = 100 nM, final = 5 nM,
-      10% formamide final (from 50% formamide stock), 50 uL/well, 10%
-      overage. Two master mixes needed (readout probe differs by
-      condition): YEH1 mix for C1+C2+C5 (5 wells): 13.75 uL YEH1 stock,
-      55.0 uL 50% formamide, 206.25 uL TBST; YEH2 mix for C3+C4 (4 wells):
-      11.0 uL YEH2 stock, 44.0 uL 50% formamide, 165.0 uL TBST. C6 receives
-      no readout probe and is excluded from both mixes. Per-well volumes:
-      2.5 uL probe stock, 10 uL 50% formamide, 37.5 uL TBST = 50 uL total.
-      Hybridization duration is still not supplied -- see preflight blockers.
+      Resolved. Readout stock = 100 nM, final = 5 nM, 10% formamide final
+      (from 50% formamide stock), 50 uL/well, 30 min hybridization at room
+      temperature, 10% overage. Two master mixes needed (readout probe
+      differs by condition): YEH1 mix for C1+C2+C5 (5 wells): 13.75 uL YEH1
+      stock, 55.0 uL 50% formamide, 206.25 uL TBST; YEH2 mix for C3+C4
+      (4 wells): 11.0 uL YEH2 stock, 44.0 uL 50% formamide, 165.0 uL TBST.
+      C6 receives no readout probe and is excluded from both mixes.
+      Per-well volumes: 2.5 uL probe stock, 10 uL 50% formamide, 37.5 uL
+      TBST = 50 uL total.
 
 execution:
   ordered_plan:
@@ -189,8 +189,8 @@ execution:
     - step: 6
       description: >
         Readout-probe hybridization per encoding-hybridization-imaging step 4
-        (room temperature, 10% formamide, TBST, 50 uL/well; YEH1 for C1/C2/C5,
-        YEH2 for C3/C4; duration TBD) -- omitted for condition C6 (no-probe
+        (room temperature, 10% formamide, TBST, 50 uL/well, 30 min; YEH1 for
+        C1/C2/C5, YEH2 for C3/C4) -- omitted for condition C6 (no-probe
         autofluorescence control).
     - step: 7
       description: "Post-readout-hybridization wash (step 5): 2 washes x 10 min each, TBST at room temperature assumed."
@@ -217,9 +217,8 @@ analysis:
     comparison figure
 
 preflight:
-  status: blocking issues unresolved
-  blockers:
-    - readout-probe hybridization duration not supplied -- all other readout-mix parameters (stock, final concentration, formamide %, volume, overage) are now resolved
+  status: passed -- no unresolved critical blockers; noncritical warnings remain (see below)
+  blockers: []
   warnings:
     - >
       C5 (no-encoder background) uses YEH1 only. YEH2's non-specific-binding
@@ -249,4 +248,4 @@ preflight:
       protocol's viable-cell input -- total cell count used instead of
       viability-gated count (see protocols[0].run_parameters.deviation).
 
-status: DESIGN_COMPLETE
+status: READY_TO_RUN
