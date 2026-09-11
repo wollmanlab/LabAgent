@@ -1,0 +1,22 @@
+experiment_id: EXP-2026-0001
+date: 2026-09-11
+owner: RJ
+title: Testing Exo7
+projects:
+  - ATLAS
+objective: >
+  Test whether Exo7 exonuclease treatment selectively degrades non-specifically
+  bound ssDNA-encoder probes while sparing correctly hybridized padlock probes.
+decision: >
+  Whether Exo7 treatment is viable for reducing non-specific probe background;
+  if it works in 3T3 cells, next step is validating in tissue for use in the
+  pipeline to remove non-specific binding.
+comparison: >
+  2x2 design: probe type (linear-to-rRNA, representing non-specific binding,
+  vs. circular/padlock-to-rRNA, representing specific binding) x Exo7
+  treatment (+/-), in 3T3 cells.
+informative_outcome: >
+  Cytoplasmic intensity per cell. A positive result is Exo7 treatment
+  substantially reducing linear-probe signal while circular-probe signal
+  remains largely intact.
+status: planning
