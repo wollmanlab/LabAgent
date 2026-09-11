@@ -66,6 +66,8 @@ Reference canonical protocols rather than copying their full procedures into the
 
 Convert template parameters into run-specific values. Derive sample, well, slide, reaction, field, and measurement counts from the agreed design and layout. Scale reagent quantities, dilutions, master mixes, consumables, and other per-unit amounts using the protocol's normalized definitions, including documented excess and rounding rules.
 
+For a master mix serving multiple wells, reactions, or condition groups with the same composition, prepare 10% over the theoretical dispensing requirement to cover transfer loss: multiply the total required volume and every component by `1.10`. Calculate separate mixes for conditions with different compositions. Record both the theoretical requirement and the overage-adjusted preparation amount, including the 10% factor and any subsequent rounding. If the canonical protocol specifies a different excess or the user deliberately chooses one, use and document that value instead; do not apply both overages.
+
 Use the protocol's deterministic calculation code when provided. Use deterministic code for nontrivial, repeated, safety-critical, or accuracy-critical calculations; verify its inputs, units, constraints, and outputs. Keep simple arithmetic transparent. Never invent missing concentrations, defaults, excess factors, or conversion rules: resolve them with the user or record them as blocking issues.
 
 ## Assemble the run manifest
