@@ -19,4 +19,177 @@ informative_outcome: >
   Cytoplasmic intensity per cell. A positive result is Exo7 treatment
   substantially reducing linear-probe signal while circular-probe signal
   remains largely intact.
-status: planning
+
+design:
+  cell_line: 3T3
+  replicate_strategy: >
+    Technical replicates only (2 wells per condition, all from a single
+    plating/fixation batch on one plate). Not a biological-replicate design;
+    a consistent result across the 2 wells demonstrates measurement
+    reproducibility, not biological reproducibility.
+  variables_held_constant:
+    - cell line, plating density, and plate (all 10 wells from one batch)
+    - Exo7 incubation window (all wells incubated together, 3 h at 37C)
+  known_interpretive_limitation: >
+    The linear probe serves both as the non-specific-binding test arm and as
+    the only positive control for Exo7 enzymatic activity. A null result
+    (no signal drop in the linear condition) will be ambiguous between
+    "Exo7 was not active" and "exposed probe ends are not more susceptible
+    than hypothesized" -- there is no independent construct in this design
+    that isolates enzyme activity from the hypothesis under test.
+  conditions:
+    - id: C1
+      label: linear probe, +Exo7
+      probe: linear-to-rRNA
+      exo7: "+"
+      wells: 2
+    - id: C2
+      label: linear probe, -Exo7 (mock)
+      probe: linear-to-rRNA
+      exo7: "-"
+      wells: 2
+    - id: C3
+      label: circular/padlock probe, +Exo7
+      probe: circular-to-rRNA
+      exo7: "+"
+      wells: 2
+    - id: C4
+      label: circular/padlock probe, -Exo7 (mock)
+      probe: circular-to-rRNA
+      exo7: "-"
+      wells: 2
+    - id: C5
+      label: no-encoder background
+      probe: none (readout probe still applied)
+      exo7: "- (mock)"
+      wells: 1
+      purpose: baseline for readout-probe non-specific binding without target-specific encoder
+    - id: C6
+      label: no-readout background
+      probe: encoding probe applied normally, no readout probe
+      exo7: "- (mock)"
+      wells: 1
+      purpose: confirms signal requires the readout probe rather than encoder autofluorescence
+  total_wells: 10
+  physical_well_assignment: not yet made; to be recorded at plating time
+
+protocols:
+  - protocol_id: pdl-coating-cell-plating-fixation
+    version: "0.1"
+    path: ../../../protocols/pdl-coating-cell-plating-fixation/protocol.md
+    role: dependency (completed before hybridization)
+    run_parameters:
+      well_count: 10
+      pdl_volume_per_well_ul: 25
+      master_mix_overage_percent: 10
+      measured_viable_cells_per_ul: TBD (measured day-of; run calculations.py with the measured value)
+  - protocol_id: encoding-hybridization-imaging
+    version: "0.2"
+    path: ../../../protocols/encoding-hybridization-imaging/protocol.md
+    role: primary protocol for encoding-probe hybridization, readout-probe hybridization, and imaging
+    run_parameters:
+      well_count: 10
+      probe_final_concentration_nm: 1  # fixed by protocol
+      probe_stock_concentration: TBD -- blocking; needed to compute encoding-probe volume per well
+      readout_probe_identity: TBD -- matched to each encoding probe (linear/circular); not yet supplied
+      readout_probe_stock_concentration: TBD -- blocking
+      readout_probe_final_concentration: TBD -- blocking
+      readout_hybridization_volume_per_well_ul: TBD -- blocking
+      readout_hybridization_duration: TBD -- blocking
+      master_mix_overage_percent: 10
+      post_encoding_hybridization_wash_conditions: TBD
+      post_readout_hybridization_wash_conditions: TBD
+      imaging_configuration: TBD
+  - protocol_id: exo7-digestion (ad hoc, not a canonical protocol)
+    role: run-specific step inserted after post-encoding-hybridization wash, before readout-probe hybridization
+    run_parameters:
+      buffer: TBE
+      enzyme_units_per_well: 10
+      reaction_volume_per_well_ul: 50
+      incubation_temperature_c: 37
+      incubation_duration_h: 3
+      applied_to: wells in conditions C1 and C3 (the "+Exo7" conditions)
+      mock_treatment: >
+        Wells in conditions C2, C4, C5, C6 receive the same 50 uL TBE buffer
+        with no enzyme, incubated together with the +Exo7 wells for the same
+        3 h/37C window (all 10 wells are on one plate and are incubated
+        together).
+
+calculations:
+  pdl_cell_pfa: >
+    Use protocols/pdl-coating-cell-plating-fixation/calculations.py with
+    well_count=10, pdl_volume_per_well_ul=25, overage_percent=10, and the
+    measured_viable_cells_per_ul recorded at plating time. Not yet run --
+    depends on a same-day measurement.
+  exo7_master_mix: >
+    4 wells (C1, C3) require the 10 U/50 uL TBE Exo7 reaction; 6 wells (C2,
+    C4, C5, C6) require the 50 uL TBE-only mock. Apply 10% overage to each
+    master mix. Not yet computed in absolute reagent volumes -- straightforward
+    once confirmed, held here pending manifest review.
+  hybridization_mixes: >
+    Blocked. Encoding-probe stock concentration and readout-probe identity/
+    concentration/volume are not yet supplied (see protocols.run_parameters
+    above). Cannot compute per-well hybridization-mix volumes until provided.
+
+execution:
+  ordered_plan:
+    - step: 1
+      description: >
+        Plate and fix 3T3 cells per pdl-coating-cell-plating-fixation (10 wells,
+        25 uL PDL, 10% overage; measure viable cell concentration day-of).
+    - step: 2
+      description: >
+        Encoding-probe hybridization per encoding-hybridization-imaging steps
+        1-2 (pre-hybridization washes, then overnight hybridization at 37C,
+        20% formamide, 1 nM final) -- distinct encoding probe (linear or
+        circular or none) per condition C1-C6.
+    - step: 3
+      description: "Post-encoding-hybridization wash (step 3; conditions TBD)."
+    - step: 4
+      description: >
+        Exo7 / mock incubation -- add 50 uL reaction (10 U Exo7 in TBE for
+        C1/C3; TBE only for C2/C4/C5/C6) to each well; incubate all 10 wells
+        together, 3 h at 37C.
+    - step: 5
+      description: "Wash (conditions TBD)."
+    - step: 6
+      description: >
+        Readout-probe hybridization per encoding-hybridization-imaging step 4
+        (room temperature, 10% formamide, TBST; probe/volume/duration TBD) --
+        omitted for condition C6 (no-readout control).
+    - step: 7
+      description: "Post-readout-hybridization wash (step 5; conditions TBD)."
+    - step: 8
+      description: >
+        Imaging per encoding-hybridization-imaging step 6 (microscope/
+        acquisition settings TBD).
+
+analysis:
+  primary_measurement: cytoplasmic intensity per cell
+  segmentation_normalization: TBD -- not yet specified (cell segmentation method,
+    background subtraction, per-cell vs per-well aggregation)
+  planned_comparisons: >
+    Within each probe type, +Exo7 vs -Exo7 cytoplasmic intensity (C1 vs C2,
+    C3 vs C4); across probe types, relative Exo7-induced signal change
+    (linear vs circular). C5 and C6 used as background/validity references,
+    not part of the primary comparison.
+  qc_exclusions: TBD -- not yet specified
+  expected_outputs: per-cell intensity table and images per well; summary
+    comparison figure
+
+preflight:
+  status: blocking issues unresolved
+  blockers:
+    - encoding-probe stock concentration not supplied (both linear and circular probes)
+    - readout-probe identity, stock/working concentration, hybridization volume, and duration not supplied
+    - post-encoding-hybridization and post-readout-hybridization wash conditions not supplied
+    - imaging/acquisition configuration not supplied
+    - measured viable-cell concentration not available until day of plating (expected, not a design gap)
+    - analysis segmentation/normalization/QC plan not yet specified
+  warnings:
+    - technical-replicate-only design (n=2, single plating batch); no biological
+      replication in this pilot
+    - linear probe serves as both test arm and sole positive control for Exo7
+      activity (see design.known_interpretive_limitation)
+
+status: DESIGN_COMPLETE
