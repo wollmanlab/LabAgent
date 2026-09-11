@@ -64,18 +64,22 @@ design:
       wells: 2
     - id: C5
       label: no-encoder background
-      probe: none (readout probe still applied)
-      readout_probe: undetermined -- YEH1 or YEH2; see preflight blockers
+      probe: none
+      readout_probe: YEH1
       exo7: "- (mock)"
       wells: 1
-      purpose: baseline for readout-probe non-specific binding without target-specific encoder
+      purpose: baseline for YEH1 readout-probe non-specific binding without a target-specific encoder
     - id: C6
-      label: no-readout background
-      probe: undetermined -- linear or circular; see preflight blockers
-      readout_probe: none (omitted by design)
+      label: no-probe background (autofluorescence)
+      probe: none
+      readout_probe: none
       exo7: "- (mock)"
       wells: 1
-      purpose: confirms signal requires the readout probe rather than encoder autofluorescence
+      purpose: >
+        Redefined from the original "no-readout" concept: neither encoding
+        nor readout probe is applied. Measures inherent cell/plate
+        autofluorescence rather than testing whether the encoding probe
+        itself is autofluorescent without a readout probe attached.
   total_wells: 10
   physical_well_assignment: not yet made; to be recorded at plating time
 
@@ -197,8 +201,19 @@ preflight:
   blockers:
     - encoding-probe stock concentration not supplied (both linear and circular probes) -- blocks encoding-probe hybridization-mix volume calculation
     - readout-probe stock concentration and hybridization volume/duration not supplied (identity and final concentration are now set -- YEH1/YEH2 at 5 nM)
-    - which single probe condition C5 (no-encoder) and C6 (no-readout) represent is undetermined: C5 needs one of YEH1/YEH2 chosen (a single well cannot characterize both readout probes' non-specific background), and C6 needs one of linear/circular chosen as the encoding probe -- resolve by choosing one, or add a second well to each
   warnings:
+    - >
+      C5 (no-encoder background) uses YEH1 only. YEH2's non-specific-binding
+      background is therefore untested by this design -- if YEH1 and YEH2
+      differ in non-specific behavior, the circular-probe condition (C3/C4,
+      which uses YEH2) has no matched background reference. Accepted as-is
+      per instruction; flagged for awareness, not blocking.
+    - >
+      C6 was redefined from "encoder present, no readout" (tests whether the
+      encoding probe itself is autofluorescent) to "no probe at all" (tests
+      general cell/plate autofluorescence). These are different controls;
+      the original encoder-autofluorescence question is no longer directly
+      addressed by any well in this design.
     - technical-replicate-only design (n=2, single plating batch); no biological
       replication in this pilot
     - linear probe serves as both test arm and sole positive control for Exo7
