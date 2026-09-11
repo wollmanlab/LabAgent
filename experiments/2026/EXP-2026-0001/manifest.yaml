@@ -41,32 +41,38 @@ design:
     - id: C1
       label: linear probe, +Exo7
       probe: linear-to-rRNA
+      readout_probe: YEH1
       exo7: "+"
       wells: 2
     - id: C2
       label: linear probe, -Exo7 (mock)
       probe: linear-to-rRNA
+      readout_probe: YEH1
       exo7: "-"
       wells: 2
     - id: C3
       label: circular/padlock probe, +Exo7
       probe: circular-to-rRNA
+      readout_probe: YEH2
       exo7: "+"
       wells: 2
     - id: C4
       label: circular/padlock probe, -Exo7 (mock)
       probe: circular-to-rRNA
+      readout_probe: YEH2
       exo7: "-"
       wells: 2
     - id: C5
       label: no-encoder background
       probe: none (readout probe still applied)
+      readout_probe: undetermined -- YEH1 or YEH2; see preflight blockers
       exo7: "- (mock)"
       wells: 1
       purpose: baseline for readout-probe non-specific binding without target-specific encoder
     - id: C6
       label: no-readout background
-      probe: encoding probe applied normally, no readout probe
+      probe: undetermined -- linear or circular; see preflight blockers
+      readout_probe: none (omitted by design)
       exo7: "- (mock)"
       wells: 1
       purpose: confirms signal requires the readout probe rather than encoder autofluorescence
@@ -82,7 +88,12 @@ protocols:
       well_count: 10
       pdl_volume_per_well_ul: 25
       master_mix_overage_percent: 10
-      measured_viable_cells_per_ul: TBD (measured day-of; run calculations.py with the measured value)
+      measured_total_cells_per_ul: TBD (measured day-of; run calculations.py with the measured value)
+      deviation: >
+        The protocol's input is a viability-gated count
+        (measured_viable_cells_per_ul); this run counts and targets all
+        cells (total count), not only viable ones. Target is therefore
+        10,000 total cells/well rather than 10,000 viable cells/well.
   - protocol_id: encoding-hybridization-imaging
     version: "0.2"
     path: ../../../protocols/encoding-hybridization-imaging/protocol.md
@@ -91,15 +102,15 @@ protocols:
       well_count: 10
       probe_final_concentration_nm: 1  # fixed by protocol
       probe_stock_concentration: TBD -- blocking; needed to compute encoding-probe volume per well
-      readout_probe_identity: TBD -- matched to each encoding probe (linear/circular); not yet supplied
+      readout_probe_identity: "YEH1 for linear-probe conditions (C1, C2); YEH2 for circular-probe conditions (C3, C4). C5/C6 assignment undetermined -- see preflight blockers."
       readout_probe_stock_concentration: TBD -- blocking
-      readout_probe_final_concentration: TBD -- blocking
+      readout_probe_final_concentration: 5  # nM, confirmed
       readout_hybridization_volume_per_well_ul: TBD -- blocking
       readout_hybridization_duration: TBD -- blocking
       master_mix_overage_percent: 10
-      post_encoding_hybridization_wash_conditions: TBD
-      post_readout_hybridization_wash_conditions: TBD
-      imaging_configuration: TBD
+      post_encoding_hybridization_wash_conditions: "2 washes x 10 min each; buffer and temperature assumed TBST at room temperature (consistent with rest of protocol), not explicitly confirmed"
+      post_readout_hybridization_wash_conditions: "2 washes x 10 min each; buffer and temperature assumed TBST at room temperature, not explicitly confirmed"
+      imaging_configuration: "Deliberately deferred to the operator at time of imaging (exposure and acquisition settings set on the microscope); not fixed in advance by design"
   - protocol_id: exo7-digestion (ad hoc, not a canonical protocol)
     role: run-specific step inserted after post-encoding-hybridization wash, before readout-probe hybridization
     run_parameters:
@@ -144,21 +155,21 @@ execution:
         20% formamide, 1 nM final) -- distinct encoding probe (linear or
         circular or none) per condition C1-C6.
     - step: 3
-      description: "Post-encoding-hybridization wash (step 3; conditions TBD)."
+      description: "Post-encoding-hybridization wash (step 3): 2 washes x 10 min each, TBST at room temperature assumed."
     - step: 4
       description: >
         Exo7 / mock incubation -- add 50 uL reaction (10 U Exo7 in TBE for
         C1/C3; TBE only for C2/C4/C5/C6) to each well; incubate all 10 wells
         together, 3 h at 37C.
     - step: 5
-      description: "Wash (conditions TBD)."
+      description: "Wash: 2 washes x 10 min each, TBST at room temperature assumed."
     - step: 6
       description: >
         Readout-probe hybridization per encoding-hybridization-imaging step 4
         (room temperature, 10% formamide, TBST; probe/volume/duration TBD) --
         omitted for condition C6 (no-readout control).
     - step: 7
-      description: "Post-readout-hybridization wash (step 5; conditions TBD)."
+      description: "Post-readout-hybridization wash (step 5): 2 washes x 10 min each, TBST at room temperature assumed."
     - step: 8
       description: >
         Imaging per encoding-hybridization-imaging step 6 (microscope/
@@ -166,30 +177,42 @@ execution:
 
 analysis:
   primary_measurement: cytoplasmic intensity per cell
-  segmentation_normalization: TBD -- not yet specified (cell segmentation method,
-    background subtraction, per-cell vs per-well aggregation)
+  segmentation_normalization: >
+    Deferred to appropriate available image-analysis skills at analysis time
+    (cell segmentation, background subtraction, per-cell vs per-well
+    aggregation); no specific pipeline fixed in advance.
   planned_comparisons: >
     Within each probe type, +Exo7 vs -Exo7 cytoplasmic intensity (C1 vs C2,
     C3 vs C4); across probe types, relative Exo7-induced signal change
     (linear vs circular). C5 and C6 used as background/validity references,
     not part of the primary comparison.
-  qc_exclusions: TBD -- not yet specified
+  qc_exclusions: >
+    Deferred to appropriate available image-analysis skills at analysis time;
+    no specific exclusion rule fixed in advance.
   expected_outputs: per-cell intensity table and images per well; summary
     comparison figure
 
 preflight:
   status: blocking issues unresolved
   blockers:
-    - encoding-probe stock concentration not supplied (both linear and circular probes)
-    - readout-probe identity, stock/working concentration, hybridization volume, and duration not supplied
-    - post-encoding-hybridization and post-readout-hybridization wash conditions not supplied
-    - imaging/acquisition configuration not supplied
-    - measured viable-cell concentration not available until day of plating (expected, not a design gap)
-    - analysis segmentation/normalization/QC plan not yet specified
+    - encoding-probe stock concentration not supplied (both linear and circular probes) -- blocks encoding-probe hybridization-mix volume calculation
+    - readout-probe stock concentration and hybridization volume/duration not supplied (identity and final concentration are now set -- YEH1/YEH2 at 5 nM)
+    - which single probe condition C5 (no-encoder) and C6 (no-readout) represent is undetermined: C5 needs one of YEH1/YEH2 chosen (a single well cannot characterize both readout probes' non-specific background), and C6 needs one of linear/circular chosen as the encoding probe -- resolve by choosing one, or add a second well to each
   warnings:
     - technical-replicate-only design (n=2, single plating batch); no biological
       replication in this pilot
     - linear probe serves as both test arm and sole positive control for Exo7
       activity (see design.known_interpretive_limitation)
+    - post-encoding-hybridization and post-readout-hybridization wash buffer/temperature
+      assumed as TBST at room temperature (consistent with the rest of the protocol,
+      count and duration confirmed at 2x10 min) but not explicitly confirmed
+    - imaging/acquisition configuration deliberately deferred to the operator at
+      time of imaging; not fixed in advance by design, not a gap
+    - analysis segmentation/normalization/QC deliberately deferred to appropriate
+      image-analysis skills at analysis time; not fixed in advance by design
+    - >
+      Cell counting deviates from the pdl-coating-cell-plating-fixation
+      protocol's viable-cell input -- total cell count used instead of
+      viability-gated count (see protocols[0].run_parameters.deviation).
 
 status: DESIGN_COMPLETE
