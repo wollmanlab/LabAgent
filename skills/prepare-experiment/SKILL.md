@@ -1,6 +1,6 @@
 ---
 name: prepare-experiment
-description: Collaboratively turn an initialized experiment into a complete, executable, preflight-checked run manifest. Use after create-experiment to design the experiment, instantiate canonical protocols, specify analysis and acquisition, resolve run-specific calculations, and determine whether the experiment is ready to run.
+description: Collaboratively turn an initialized experiment into a complete, executable, preflight-checked run manifest and a bench sheet for the operator. Use after create-experiment to design the experiment, instantiate canonical protocols, specify analysis and acquisition, resolve run-specific calculations, determine whether the experiment is ready to run, and produce the human-readable bench sheet.
 ---
 
 # Prepare Experiment
@@ -128,3 +128,42 @@ Mark the experiment `READY_TO_RUN` only when:
 - integrated preflight passes, with no unresolved critical issues and only explicit noncritical warnings remaining.
 
 Before finishing, review the proposed manifest with the user when scientifically material decisions were made during preparation. Report the final state, the key design and analysis decisions, the canonical protocol versions instantiated, preflight findings, and any remaining warnings or unresolved issues.
+
+## Produce and present the bench sheet
+
+As the final step, generate a standalone human-readable bench sheet for the person who will actually run the experiment, then show it to the user.
+
+Generate it once the manifest reaches `READY_TO_RUN`. If the user asks for it while blockers remain, produce it anyway and mark the unresolved items visibly in place rather than omitting them.
+
+The bench sheet is a derived working document, not a second source of truth. The manifest remains authoritative; state that on the sheet. This is also not `execution.md`, which records what actually happened during the run and is written afterward from the operator's feedback.
+
+Write the markdown source and a rendered PDF into the experiment directory, keeping the source so the sheet can be regenerated. Regenerate it after any material change to the manifest.
+
+### Contents
+
+Organize for someone standing at the bench, not for validation. Include:
+
+- what the experiment tests, in plain terms, and what a positive result looks like;
+- conditions and the sample, well, slide, or reaction layout, with physical assignments. If the manifest does not fix them, propose an assignment and mark it clearly as a proposal to confirm or replace;
+- materials and stock concentrations;
+- the ordered procedure grouped by session or day, with each step's instantiated quantities inline as both per-unit and scaled totals, including overage;
+- the primary measurement and planned comparisons, briefly;
+- known limitations.
+
+Reference canonical protocols by ID and version rather than reproducing their full procedures, but inline the quantities and conditions the operator needs so the sheet is usable without opening every protocol. Carry forward safety-critical handling instructions rather than leaving them only in the protocol.
+
+Present assumptions as assumptions and deviations as deviations. Never render an unconfirmed value as an established one.
+
+### Fill-in fields
+
+Any value that can only be obtained during execution becomes a labeled blank field rather than a guess. This includes day-of measurements, reagent lot activity or concentration, instrument and acquisition settings, and any quantity derived from them. Where a blank feeds a calculation, print the formula next to it so the operator can complete the arithmetic at the bench.
+
+### Confirm-before-you-start section
+
+Include a short checklist of everything that must be resolved before work begins: unconfirmed assumptions, values still missing, proposed layouts awaiting approval, and handling questions the manifest does not settle.
+
+Writing the sheet frequently exposes gaps that section-by-section preflight did not, because it forces every step into an executable sequence. When it does, record those gaps in the manifest's preflight findings as well, and reconsider whether the experiment's state is still justified. Do not let the bench sheet become the only place a gap is documented.
+
+### Presenting it
+
+Show the user the rendered sheet and summarize its sections. Call out explicitly any gap the sheet exposed that the manifest did not already record.
