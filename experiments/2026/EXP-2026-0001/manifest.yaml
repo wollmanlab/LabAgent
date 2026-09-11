@@ -217,9 +217,21 @@ analysis:
     comparison figure
 
 preflight:
-  status: passed -- no unresolved critical blockers; noncritical warnings remain (see below)
-  blockers: []
+  status: blocking issue unresolved -- surfaced while writing the bench sheet
+  blockers:
+    - >
+      Attachment/growth period between plating and fixation is not specified
+      in this manifest or in pdl-coating-cell-plating-fixation (the protocol
+      defers it as experiment-specific). No value has been decided, so the
+      run is not executable as written. Surfaced by bench-sheet generation,
+      not by section-by-section preflight.
   warnings:
+    - >
+      Whether C6 (no-readout well) should receive 50 uL of probe-free buffer
+      during the readout-hybridization step -- matching handling the way the
+      Exo7 mock does -- is not specified. Unmatched handling is a minor
+      confound for the autofluorescence baseline. Surfaced by bench-sheet
+      generation.
     - >
       C5 (no-encoder background) uses YEH1 only. YEH2's non-specific-binding
       background is therefore untested by this design -- if YEH1 and YEH2
@@ -248,4 +260,4 @@ preflight:
       protocol's viable-cell input -- total cell count used instead of
       viability-gated count (see protocols[0].run_parameters.deviation).
 
-status: READY_TO_RUN
+status: DESIGN_COMPLETE
