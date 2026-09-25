@@ -1,13 +1,37 @@
 ---
 name: create-experiment
-description: Initialize a new scientific or technical experiment through an adaptive Socratic dialogue, then create its minimal repository record. Use when a user wants to start or register an experiment; detailed experimental design belongs to prepare-experiment.
+description: Initialize a new scientific or technical experiment through an adaptive Socratic dialogue, then create its minimal external experiment workspace. Use when a user wants to start or register an experiment; detailed experimental design belongs to prepare-experiment.
 ---
 
 # Create Experiment
 
 ## Purpose
 
-Turn a rough experimental intent into a clearly framed experiment and initialize its repository record. Establish what the experiment is for before creating files, while keeping detailed experimental design for the next stage.
+Turn a rough experimental intent into a clearly framed experiment and initialize its external experiment workspace. Establish what the experiment is for before creating files, while keeping detailed experimental design for the next stage.
+
+Experiments are not stored in the LabAgent Git repository. LabAgent contains reusable skills, protocols, templates, and other shared infrastructure. Experiment records live under the user's configured external experiment root.
+
+## Load local configuration
+
+Before creating or locating an experiment, read the user's local LabAgent configuration. The standard location is:
+
+```text
+~/.labagent/config.yaml
+```
+
+The configuration is user- and machine-specific and must remain outside Git.
+
+Use at least:
+
+```yaml
+paths:
+  labagent_repo: /path/to/LabAgent
+  experiment_root: /path/to/experiment/storage
+```
+
+Use `paths.experiment_root` as the authoritative root for experiment records. Use `paths.labagent_repo` to locate reusable LabAgent skills, protocols, templates, and other shared resources.
+
+If the config file or required path is missing, ask the user to provide or fix it. Do not guess a storage location and do not fall back to creating experiments inside the LabAgent repository.
 
 ## Socratic interaction
 
@@ -44,13 +68,18 @@ Also capture the decision, comparison or change, project context, and informativ
 
 Summarize the intended experiment and resolve any material misunderstanding before writing files.
 
-## Initialize the experiment
+## Initialize the experiment workspace
 
-Follow the repository's existing conventions when they are present. Otherwise:
+Follow existing conventions in the configured experiment store when they are present. Otherwise:
 
-1. Assign the next available experiment ID in the form `EXP-<year>-<sequence>`, using a zero-padded sequence such as `EXP-2026-0042`. Determine the sequence from existing experiment records and never reuse an ID.
-2. Create an experiment branch named `exp/<experiment_id>-<short-slug>`, using the repository's naming convention if it differs. Do not discard or overwrite unrelated working-tree changes; if branch creation would be unsafe, explain the conflict and stop before changing repository state.
-3. Create `experiments/<year>/<experiment_id>/` containing:
+1. Assign the next available experiment ID in the form `EXP-<year>-<sequence>`, using a zero-padded sequence such as `EXP-2026-0042`. Determine the sequence from existing experiment directories and records under `paths.experiment_root`; never infer it from Git history and never reuse an ID.
+2. Create the experiment directory at:
+
+   ```text
+   <experiment_root>/<year>/<experiment_id>/
+   ```
+
+3. Create the initial workspace:
 
    ```text
    manifest.yaml
@@ -61,7 +90,7 @@ Follow the repository's existing conventions when they are present. Otherwise:
    src/
    ```
 
-4. Initialize `manifest.yaml` with known metadata only. Omit unknown optional fields rather than guessing or inserting fabricated values. Use the repository's established schema when available; otherwise use a minimal structure such as:
+4. Initialize `manifest.yaml` with known metadata only. Omit unknown optional fields rather than guessing or inserting fabricated values. Use the experiment store's established schema when available; otherwise use a minimal structure such as:
 
    ```yaml
    experiment_id: EXP-2026-0042
@@ -77,13 +106,25 @@ Follow the repository's existing conventions when they are present. Otherwise:
    informative_outcome: >
      Metric or observation that would make the result informative.
    status: planning
-   context:
-     - projects/example-project/context.md
    ```
 
-   Include `projects` and `context` only when applicable and known. Reference relevant project context rather than copying it into the experiment record.
-5. Keep `execution.md`, `analysis.md`, and `summary.md` minimal. Add only established repository headings or a short purpose heading; do not pre-fill experimental details that have not been decided.
+   Include project/context references only when applicable and known. Prefer stable identifiers or configured paths rather than copying reusable LabAgent material into the experiment workspace.
+5. Keep `execution.md`, `analysis.md`, and `summary.md` minimal. Add only established headings or a short purpose heading; do not pre-fill experimental details that have not been decided.
+
+## Git boundary
+
+Experiment records and experimental data are outside Git.
+
+For experiment files:
+
+- do not create a Git branch;
+- do not initialize a Git repository;
+- do not run `git add`, `git commit`, `git push`, or any equivalent synchronization step;
+- do not copy experiment records into the LabAgent repository;
+- do not treat Git history as the experiment index.
+
+Git may still be used for reusable LabAgent infrastructure such as skills and canonical protocols, but experiment workspaces must remain external.
 
 ## Handoff
 
-Report the experiment ID, branch, directory, and metadata created. Then invite the user to continue with `prepare-experiment` to design controls, conditions, calculations, and the execution plan.
+Report the experiment ID, experiment-directory path, and metadata created. Then invite the user to continue with `prepare-experiment` to design controls, conditions, calculations, and the execution plan.
