@@ -19,9 +19,11 @@ Generate the sheet when the experiment reaches `READY_TO_RUN`, as the closing st
 
 If the sheet is requested while blockers remain, produce it, but mark every unresolved item visibly in place. Do not omit a blocked step or silently fill a missing value to make the document look complete.
 
-## Load the run record first
+## Load configuration and the run record first
 
-Read the experiment's `manifest.yaml` and every protocol it instantiates, including their versions, dependencies, and subprotocols. Take quantities from the manifest's resolved calculations rather than recomputing them from memory, and verify the numbers you print against the manifest before writing them.
+Read the user's local LabAgent configuration from `~/.labagent/config.yaml`. Use `paths.experiment_root` for experiment records and `paths.labagent_repo` for canonical protocols and skills.
+
+Read the current experiment's `manifest.yaml` from its external experiment directory and every LabAgent protocol it instantiates, including their versions, dependencies, and subprotocols. Take quantities from the manifest's resolved calculations rather than recomputing them from memory, and verify the numbers you print against the manifest before writing them.
 
 If the manifest and a protocol disagree, surface the conflict on the sheet rather than choosing silently.
 
@@ -72,13 +74,15 @@ Do not let the bench sheet become the only place a gap is documented.
 
 ## Render and place the output
 
-Write the markdown source and a rendered PDF into the experiment directory, keeping the source so the sheet can be regenerated and diffed:
+Write the markdown source and rendered PDF into the current external experiment directory, keeping the source so the sheet can be regenerated:
 
 ```text
-experiments/<year>/<experiment_id>/
+<current_experiment_directory>/
   bench_sheet.md
   <experiment_id>_bench_sheet.pdf
 ```
+
+Do not create a Git branch, stage, commit, push, or otherwise sync the bench sheet or other experiment files into the LabAgent repository.
 
 Render with the `md-to-pdf` skill when it is available; otherwise use `reportlab` directly. Do not spend time on pandoc, LaTeX, or WeasyPrint.
 
