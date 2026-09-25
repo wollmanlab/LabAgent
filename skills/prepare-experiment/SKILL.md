@@ -11,17 +11,26 @@ Turn an experiment initialized by `create-experiment` into a complete, executabl
 
 Keep scientific judgment with the user. Make assumptions, tradeoffs, and unresolved risks visible; do not silently decide scientifically material questions.
 
-## Load context before asking questions
+## Load configuration and context before asking questions
 
-Inspect the repository before beginning the design discussion. Read:
+Read the user's local LabAgent configuration from `~/.labagent/config.yaml` before beginning the design discussion. The configuration is outside Git and should provide at least `paths.labagent_repo` and `paths.experiment_root`.
 
-- the experiment's initial `manifest.yaml` and its linked files;
-- relevant project context referenced by the experiment or discoverable through its project tags;
+Treat these as two separate information sources:
+
+- **experiment workspace** under `paths.experiment_root`: the current experiment's `manifest.yaml`, companion files, prior experiment records, results, and experimental data references;
+- **LabAgent repository** under `paths.labagent_repo`: reusable canonical protocols, skills, templates, and other shared infrastructure.
+
+Read:
+
+- the current experiment's initial `manifest.yaml` and linked files from its external experiment directory;
+- relevant project context referenced by the experiment;
 - protocols already referenced by the experiment;
 - related canonical protocols in LabAgent, including their dependencies and subprotocols;
-- relevant previous experiments and results, when available.
+- relevant previous experiments and results from the external experiment store, when available.
 
-Follow repository links and established conventions. Search selectively using the experiment's objective, methods, samples, measurements, and project tags. Prefer the most relevant prior experiments rather than loading the entire history. Treat prior runs as evidence and context, not automatically as authoritative templates.
+Search selectively using the experiment's objective, methods, samples, measurements, and project tags. Prefer the most relevant prior experiments rather than loading the entire history. Treat prior runs as evidence and context, not automatically as authoritative templates.
+
+Do not assume the experiment lives in a Git checkout. Never use Git history, branches, commits, or repository paths to locate or version experiment records.
 
 Do not ask the user to repeat information that is already recorded. Summarize material facts, contradictions, and gaps from the loaded context before asking the first question when that will help establish shared understanding. If sources conflict, surface the conflict and ask which is authoritative rather than silently reconciling it.
 
@@ -72,7 +81,7 @@ Use the protocol's deterministic calculation code when provided. Use determinist
 
 ## Assemble the run manifest
 
-Follow the repository's existing manifest schema and conventions. Extend the initialized manifest in place rather than creating a competing source of truth. The completed run manifest must capture, at minimum:
+Follow the experiment store's existing manifest schema and conventions. Extend the initialized manifest in the current external experiment directory rather than creating a competing source of truth. The completed run manifest must capture, at minimum:
 
 - **experiment metadata**: ID, title, owner, date, and project tags;
 - **objective**: scientific question, rationale, and decision to be informed;
@@ -85,7 +94,9 @@ Follow the repository's existing manifest schema and conventions. Extend the ini
 - **preflight**: check results, warnings, and unresolved issues, distinguishing critical blockers from noncritical warnings;
 - **status**: `PLANNING`, `DESIGN_COMPLETE`, or `READY_TO_RUN`.
 
-Use structured fields where they support validation and automation, while keeping the manifest understandable to a scientist. Link to detailed canonical procedures and analysis resources rather than duplicating them unnecessarily. Update companion experiment files such as `execution.md` or `analysis.md` only when repository conventions assign detail to them, and keep the manifest as the authoritative index of the run.
+Use structured fields where they support validation and automation, while keeping the manifest understandable to a scientist. Link to detailed canonical procedures and analysis resources in LabAgent rather than duplicating them unnecessarily. Update companion experiment files such as `execution.md` or `analysis.md` only when experiment-store conventions assign detail to them, and keep the manifest as the authoritative index of the run.
+
+All run-specific outputs remain in the external experiment workspace. Do not create experiment branches, commit experiment files, push them to Git, or copy them into the LabAgent repository. If preparation reveals a genuinely reusable improvement to a canonical protocol or skill, treat that as a separate LabAgent maintenance task rather than silently modifying shared infrastructure during experiment preparation.
 
 ## Apply experiment states
 
